@@ -2,4 +2,6 @@
 
 A new Flutter project.
 
+![Screenshot](assets/images/lg_logo.png)
+
 
