@@ -236,7 +236,7 @@ class SSH {
       String balloonKML = BalloonMakers.balloon(LookAtEntity(
           lng: 86.427040,
           lat: 23.795399,
-          range: 4000000,
+          range: 7000,
           tilt: 60,
           heading: 0));
 
@@ -255,6 +255,8 @@ class SSH {
         print('MESSAGE :: SSH CLIENT IS NOT INITIALISED');
         return;
       }
+
+      await cleanKML();
 
       String orbitKML = OrbitEntity.buildOrbit(OrbitEntity.tag(LookAtEntity(
           lng: 86.427040,
@@ -335,14 +337,18 @@ class SSH {
       String balloonKML = BalloonMakers.balloon(LookAtEntity(
           lng: 86.427040,
           lat: 23.795399,
-          range: 4000000,
+          range: 7000,
           tilt: 60,
           heading: 0));
 
-      await client!.execute("echo '$balloonKML' > /var/www/html/kml/slave_2.kml");
+      await client!.run("echo '$balloonKML' > /var/www/html/kml/slave_2.kml");
 
       fToast.showToast(child: getToastWidget('showing balloon', Colors.grey, Icons.cable));
-      //await client!.run('echo "playtour=Task2" > /tmp/query.txt');
+      await client!.run('echo "playtour=Task2" > /tmp/query.txt');
+
+      await cleanKML();
+      //await cleanBalloon();
+
     } catch (error) {
       await showBalloon(fToast);
     }
@@ -356,12 +362,7 @@ class SSH {
       }
       fToast.showToast(
           child: getToastWidget("Showing Balloon", Colors.blue, Icons.home));
-      final executeResult = await client!.execute("echo '${BalloonMakers.blankBalloon(LookAtEntity(
-          lng: 86.427040,
-          lat: 23.795399,
-          range: 7000,
-          tilt: 60,
-          heading: 0))}' > /var/www/html/kml/slave_2.kml");
+      final executeResult = await client!.execute("echo '${BalloonMakers.blankBalloon()}' > /var/www/html/kml/slave_2.kml");
       print(executeResult);
       fToast.showToast(child: getToastWidget(
           executeResult.toString(), Colors.grey, Icons.cable));
@@ -370,6 +371,35 @@ class SSH {
       fToast.showToast(child: getToastWidget(
           'MESSAGE :: AN ERROR HAS OCCURRED WHILE EXECUTING THE COMMAND: $e',
           Colors.grey, Icons.cable));
+    }
+  }
+
+  stopOrbit() async {
+    try {
+      await client!.run('echo "exittour=true" > /tmp/query.txt');
+    } catch (error) {
+      stopOrbit();
+    }
+  }
+
+  cleanBalloon() async {
+    try {
+     // await client!.run("echo '${BalloonMakers.blankBalloon()}' > /var/www/html/kml/slave_2.kml");
+      await client!.run("echo '${BalloonMakers.blankBalloon()}' > /var/www/html/kml/slave_3.kml");
+    } catch (error) {
+      await cleanBalloon();
+    }
+  }
+
+  cleanKML() async {
+    try {
+      await stopOrbit();
+      await client!.run('echo "" > /tmp/query.txt');
+      await client!.run("echo '' > /var/www/html/kmls.txt");
+    } catch (error) {
+      await cleanKML();
+      // showSnackBar(
+      //     context: context, message: error.toString(), color: Colors.red);
     }
   }
 
