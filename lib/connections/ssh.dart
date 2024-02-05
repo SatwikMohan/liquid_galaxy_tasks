@@ -256,7 +256,7 @@ class SSH {
         return;
       }
 
-      await cleanKML();
+     // await cleanKML();
 
       String orbitKML = OrbitEntity.buildOrbit(OrbitEntity.tag(LookAtEntity(
           lng: 86.427040,
@@ -343,11 +343,12 @@ class SSH {
 
       await client!.run("echo '$balloonKML' > /var/www/html/kml/slave_2.kml");
 
-      fToast.showToast(child: getToastWidget('showing balloon', Colors.grey, Icons.cable));
-      await client!.run('echo "playtour=Task2" > /tmp/query.txt');
-
-      await cleanKML();
       //await cleanBalloon();
+
+      fToast.showToast(child: getToastWidget('showing balloon', Colors.grey, Icons.cable));
+      //await client!.run('echo "playtour=Task2" > /tmp/query.txt');
+
+      //await cleanKML();
 
     } catch (error) {
       await showBalloon(fToast);
