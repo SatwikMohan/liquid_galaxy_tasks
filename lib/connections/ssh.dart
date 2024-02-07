@@ -32,11 +32,9 @@ class SSH {
       print("11111111111111111111111111111");
       print(int.parse(port));
       print("Host${host}:");
-      fToast.showToast(
-          child: getToastWidget("running1", Colors.grey, Icons.cable));
+      //fToast.showToast(child: getToastWidget("running1", Colors.grey, Icons.cable));
       final socket = await SSHSocket.connect(host, int.parse(port));
-      fToast.showToast(
-          child: getToastWidget("Socket: ${socket}", Colors.grey, Icons.cable));
+      //fToast.showToast(child: getToastWidget("Socket: ${socket}", Colors.grey, Icons.cable));
       // print("Socket: ${socket}");
       client = SSHClient(
           socket,
@@ -44,14 +42,12 @@ class SSH {
           onPasswordRequest: () => password
       );
       print("Client: ${client}");
-      fToast.showToast(
-          child: getToastWidget("Client: ${client}", Colors.grey, Icons.cable));
+     // fToast.showToast(child: getToastWidget("Client: ${client}", Colors.grey, Icons.cable));
       print(
           host + " " + username + " " + port + " " + password + " " + noOfRigs);
       return true;
     } on SocketException catch (e) {
-      fToast.showToast(
-          child: getToastWidget("Client: ${client}", Colors.grey, Icons.cable));
+      fToast.showToast(child: getToastWidget("Client: ${client}", Colors.grey, Icons.cable));
       print("Client: ${client}");
       print(e);
       return false;
@@ -67,8 +63,7 @@ class SSH {
       final executeResult = await client!.execute(
           'echo "search=India" >/tmp/query.txt');
       print(executeResult);
-      fToast.showToast(child: getToastWidget(
-          executeResult.toString(), Colors.grey, Icons.cable));
+      //fToast.showToast(child: getToastWidget(executeResult.toString(), Colors.grey, Icons.cable));
       return executeResult;
     } catch (e) {
       print('MESSAGE :: AN ERROR HAS OCCURRED WHILE EXECUTING THE COMMAND: $e');
@@ -91,11 +86,9 @@ class SSH {
       for (var i = 1; i <= int.parse(noOfRigs); i++) {
         fToast.showToast(
             child: getToastWidget("Reboot lg$i", Colors.grey, Icons.cable));
-        final executeResult = await client!.execute(
-            'sshpass -p ${password} ssh -t lg$i "echo ${password} | sudo -S reboot"');
+        final executeResult = await client!.execute('sshpass -p ${password} ssh -t lg$i "echo ${password} | sudo -S reboot"');
         print(executeResult);
-        fToast.showToast(child: getToastWidget(
-            executeResult.toString(), Colors.grey, Icons.cable));
+        //fToast.showToast(child: getToastWidget(executeResult.toString(), Colors.grey, Icons.cable));
       }
       //return executeResult;
     } catch (e) {
@@ -185,8 +178,7 @@ class SSH {
       var localPath = await getApplicationDocumentsDirectory();
       File localFile = File('${localPath.path}/${filename}.kml');
       await localFile.writeAsString(content);
-      fToast.showToast(child: getToastWidget(
-          '${localFile.readAsStringSync()}', Colors.grey, Icons.cable));
+     // fToast.showToast(child: getToastWidget('${localFile.readAsStringSync()}', Colors.grey, Icons.cable));
       return localFile;
     } catch (e) {
       fToast.showToast(
@@ -208,14 +200,12 @@ class SSH {
         print('MESSAGE :: SSH CLIENT IS NOT INITIALISED');
         return null;
       }
-      fToast.showToast(child: getToastWidget(
-          "Going to home", Colors.blue, Icons.home));
+      fToast.showToast(child: getToastWidget("Going to home", Colors.blue, Icons.home));
       final executeResult = await client!.execute(
           'echo "flytoview=${orbitLookAtLinear(
               latitude, longitude, zoom, tilt, bearing)}" > /tmp/query.txt');
       print(executeResult);
-      fToast.showToast(child: getToastWidget(
-          executeResult.toString(), Colors.grey, Icons.cable));
+      //fToast.showToast(child: getToastWidget(executeResult.toString(), Colors.grey, Icons.cable));
       return executeResult;
     } catch (e) {
       print('MESSAGE :: AN ERROR HAS OCCURRED WHILE EXECUTING THE COMMAND: $e');
@@ -273,8 +263,7 @@ class SSH {
   uploadKMLFile(FToast fToast, File inputFile, String kmlName,String task) async {
     try {
       bool uploading = true;
-      fToast.showToast(
-          child: getToastWidget("uploading true", Colors.grey, Icons.cable));
+      //fToast.showToast(child: getToastWidget("uploading true", Colors.grey, Icons.cable));
       final sftp = await client!.sftp();
       final file = await sftp.open('/var/www/html/$kmlName.kml',
           mode: SftpFileOpenMode.create |
@@ -283,8 +272,7 @@ class SSH {
       var fileSize = await inputFile.length();
       file.write(inputFile.openRead().cast(), onProgress: (progress) async {
         if (fileSize == progress) {
-          fToast.showToast(child: getToastWidget(
-              "uploading false", Colors.grey, Icons.cable));
+          //fToast.showToast(child: getToastWidget("uploading false", Colors.grey, Icons.cable));
           uploading = false;
           if(task == "Task_Orbit"){
             await loadKML( fToast, "OrbitKML",task);
@@ -295,8 +283,7 @@ class SSH {
         }
       });
     } catch (e) {
-      fToast.showToast(
-          child: getToastWidget(e.toString(), Colors.grey, Icons.cable));
+      fToast.showToast(child: getToastWidget(e.toString(), Colors.grey, Icons.cable));
     }
   }
 
@@ -304,7 +291,7 @@ class SSH {
     try {
       fToast.showToast(child: getToastWidget('loading the  KML', Colors.grey, Icons.cable));
       final v = await client!.execute("echo 'http://lg1:81/$kmlName.kml' > /var/www/html/kmls.txt");
-      fToast.showToast(child: getToastWidget('KML loaded $v', Colors.grey, Icons.cable));
+      //fToast.showToast(child: getToastWidget('KML loaded $v', Colors.grey, Icons.cable));
       if(task=="Task_Orbit") {
         await beginOrbiting(fToast);
       } else if(task=="Task_Balloon"){
@@ -322,7 +309,7 @@ class SSH {
     try {
       fToast.showToast(child: getToastWidget('Begin Orbiting', Colors.grey, Icons.cable));
       final res = await client!.run('echo "playtour=Orbit" > /tmp/query.txt');
-      fToast.showToast(child: getToastWidget(res.toString(), Colors.grey, Icons.cable));
+      //fToast.showToast(child: getToastWidget(res.toString(), Colors.grey, Icons.cable));
     } catch (error) {
       await beginOrbiting(fToast);
     }
@@ -354,12 +341,10 @@ class SSH {
       }
       int totalScreen = int.parse(noOfRigs);
       int rightMostScreen = (totalScreen/2).floor()+1;
-      fToast.showToast(
-          child: getToastWidget("Showing Balloon", Colors.blue, Icons.home));
+      fToast.showToast(child: getToastWidget("Showing Balloon", Colors.blue, Icons.home));
       final executeResult = await client!.execute("echo '${BalloonMakers.balloon()}' > /var/www/html/kml/slave_$rightMostScreen.kml");
       print(executeResult);
-      fToast.showToast(child: getToastWidget(
-          executeResult.toString(), Colors.grey, Icons.cable));
+      //fToast.showToast(child: getToastWidget(executeResult.toString(), Colors.grey, Icons.cable));
     } catch (e) {
       print('MESSAGE :: AN ERROR HAS OCCURRED WHILE EXECUTING THE COMMAND: $e');
       fToast.showToast(child: getToastWidget(
