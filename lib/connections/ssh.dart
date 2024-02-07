@@ -233,12 +233,7 @@ class SSH {
         return;
       }
 
-      String balloonKML = BalloonMakers.balloon(LookAtEntity(
-          lng: 86.427040,
-          lat: 23.795399,
-          range: 7000,
-          tilt: 60,
-          heading: 0));
+      String balloonKML = BalloonMakers.balloon();
 
       File inputFile = await makeFile(fToast, "BalloonKML", balloonKML);
       await uploadKMLFile(fToast, inputFile, "BalloonKML","Task_Balloon");
@@ -256,7 +251,7 @@ class SSH {
         return;
       }
 
-     // await cleanKML();
+      //await cleanKML();
 
       String orbitKML = OrbitEntity.buildOrbit(OrbitEntity.tag(LookAtEntity(
           lng: 86.427040,
@@ -308,13 +303,13 @@ class SSH {
   loadKML(FToast fToast, String kmlName,String task) async {
     try {
       fToast.showToast(child: getToastWidget('loading the  KML', Colors.grey, Icons.cable));
-      final v = await client!.execute(
-          'echo "http://lg1:81/$kmlName.kml" > /var/www/html/kmls.txt');
+      final v = await client!.execute("echo 'http://lg1:81/$kmlName.kml' > /var/www/html/kmls.txt");
       fToast.showToast(child: getToastWidget('KML loaded $v', Colors.grey, Icons.cable));
-      if(task=="Task_Orbit")
+      if(task=="Task_Orbit") {
         await beginOrbiting(fToast);
-      else if(task=="Task_Balloon")
+      } else if(task=="Task_Balloon"){
         await showBalloon(fToast);
+      }
     } catch (error) {
       fToast.showToast(child: getToastWidget(
           'MESSAGE :: AN ERROR HAS OCCURRED WHILE EXECUTING THE COMMAND: $error',
@@ -326,7 +321,8 @@ class SSH {
   beginOrbiting(FToast fToast) async {
     try {
       fToast.showToast(child: getToastWidget('Begin Orbiting', Colors.grey, Icons.cable));
-      await client!.run('echo "playtour=Orbit" > /tmp/query.txt');
+      final res = await client!.run('echo "playtour=Orbit" > /tmp/query.txt');
+      fToast.showToast(child: getToastWidget(res.toString(), Colors.grey, Icons.cable));
     } catch (error) {
       await beginOrbiting(fToast);
     }
@@ -334,12 +330,7 @@ class SSH {
 
   showBalloon(FToast fToast) async {
     try {
-      String balloonKML = BalloonMakers.balloon(LookAtEntity(
-          lng: 86.427040,
-          lat: 23.795399,
-          range: 7000,
-          tilt: 60,
-          heading: 0));
+      String balloonKML = BalloonMakers.balloon();
 
       await client!.run("echo '$balloonKML' > /var/www/html/kml/slave_2.kml");
 
@@ -361,9 +352,11 @@ class SSH {
         print('MESSAGE :: SSH CLIENT IS NOT INITIALISED');
         return;
       }
+      int totalScreen = int.parse(noOfRigs);
+      int rightMostScreen = (totalScreen/2).floor()+1;
       fToast.showToast(
           child: getToastWidget("Showing Balloon", Colors.blue, Icons.home));
-      final executeResult = await client!.execute("echo '${BalloonMakers.blankBalloon()}' > /var/www/html/kml/slave_2.kml");
+      final executeResult = await client!.execute("echo '${BalloonMakers.balloon()}' > /var/www/html/kml/slave_$rightMostScreen.kml");
       print(executeResult);
       fToast.showToast(child: getToastWidget(
           executeResult.toString(), Colors.grey, Icons.cable));
@@ -383,19 +376,37 @@ class SSH {
     }
   }
 
+  startOrbit() async {
+    try {
+      await client!.run('echo "playtour=Orbit" > /tmp/query.txt');
+    } catch (error) {
+      stopOrbit();
+    }
+  }
+
   cleanBalloon() async {
     try {
-     // await client!.run("echo '${BalloonMakers.blankBalloon()}' > /var/www/html/kml/slave_2.kml");
+      await client!.run("echo '${BalloonMakers.blankBalloon()}' > /var/www/html/kml/slave_2.kml");
       await client!.run("echo '${BalloonMakers.blankBalloon()}' > /var/www/html/kml/slave_3.kml");
     } catch (error) {
       await cleanBalloon();
     }
   }
 
+  cleanSlaves() async {
+    try {
+      await client!.run("echo '' > /var/www/html/kml/slave_2.kml");
+      await client!.run("echo '' > /var/www/html/kml/slave_3.kml");
+    } catch (error) {
+      await cleanSlaves();
+    }
+  }
+
   cleanKML() async {
     try {
+      await cleanBalloon();
       await stopOrbit();
-      await client!.run('echo "" > /tmp/query.txt');
+      await client!.run("echo '' > /tmp/query.txt");
       await client!.run("echo '' > /var/www/html/kmls.txt");
     } catch (error) {
       await cleanKML();

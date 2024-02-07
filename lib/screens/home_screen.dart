@@ -25,6 +25,7 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       isConnected = result!;
     });
+    await ssh.cleanKML();
   }
 
   @override
@@ -124,6 +125,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         child: ElevatedButton(
                           onPressed: ()async{
                             await ssh.orbitAroundHome(fToast);
+                           // await ssh.startOrbit();
                           },
                           child: Text("Start Orbit",style: TextStyle(color: Colors.white,fontSize: 40),),
                           style: getButtonStyle(Colors.redAccent),
@@ -141,8 +143,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 width: MediaQuery.of(context).size.width,
                 child: ElevatedButton(
                   onPressed: ()async{
-                    await ssh.balloonAtHome(fToast);
-                    //await ssh.rightScreenBalloon(fToast);
+                    //await ssh.balloonAtHome(fToast);
+                    await ssh.rightScreenBalloon(fToast);
                   },
                   child: Text("Print HTML bubble on right screen",style: TextStyle(color: Colors.white,fontSize: 40),),
                   style: getButtonStyle(Colors.redAccent),
